@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <title>AC-Saga: Recoverability-Conditioned Concurrency Control</title>
 <meta name="description" content="AC-Saga: a transactional layer for LLM agents that share state. Lock what you cannot undo; undo the rest deterministically. AgenticOS Workshop @ NeurIPS 2026.">
 <style>
@@ -14,26 +15,7 @@
   --sky:#e2edf9; --sky-ink:#3f6fa8;
   --peach:#fcebdc; --peach-ink:#a8653a;
   --card:#ffffff; --figbg:#ffffff;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#17161b; --fg:#ecebf0; --muted:#a3a2b0; --line:#2b2a32;
-    --lav:#2a2538; --lav-ink:#c4b2ee;
-    --mint:#1f2e26; --mint-ink:#8fd3a9;
-    --rose:#35221f; --rose-ink:#f0a19c;
-    --sky:#1f2a38; --sky-ink:#9cc2ee;
-    --peach:#352a20; --peach-ink:#f0bb92;
-    --card:#1e1d23; --figbg:#ffffff;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#17161b; --fg:#ecebf0; --muted:#a3a2b0; --line:#2b2a32;
-  --lav:#2a2538; --lav-ink:#c4b2ee;
-  --mint:#1f2e26; --mint-ink:#8fd3a9;
-  --rose:#35221f; --rose-ink:#f0a19c;
-  --sky:#1f2a38; --sky-ink:#9cc2ee;
-  --peach:#352a20; --peach-ink:#f0bb92;
-  --card:#1e1d23; --figbg:#ffffff;
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
