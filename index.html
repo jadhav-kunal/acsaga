@@ -141,7 +141,7 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--line);color:v
     <li><span class="tag c-sky">LEARN</span><span>otherwise, a small Q-learned policy picks optimistic or locked from contention.</span></li>
     <li><span class="tag c-mint">UNDO</span><span>on abort, replay logged inverses derived from each statement and its pre-image. If another agent changed the row since, refuse rather than overwrite.</span></li>
   </ul>
-  <p class="muted small">Result: no abort can happen while a saga is exposed (for conflict-induced aborts, with each lock acquired within its retry budget), so every abort that does happen is cleanly recoverable.</p>
+  <p class="muted small">Result: no abort can happen while a saga is exposed (for conflict-induced aborts, with each lock acquired within its retry budget), so every abort that does happen leaves only undoable steps behind.</p>
 </section>
 
 <section>
@@ -165,7 +165,7 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--line);color:v
       <tr class="ours"><td>AC-Saga</td><td>100%</td><td>0</td><td>~0 ms</td></tr>
     </tbody>
   </table></div>
-  <p class="muted small">Even when handed the exact pre-image, LLM-written compensation gets 86–100% of 4-step sagas right across four open models, and fails silently on the rest.</p>
+  <p class="muted small">Even when handed the exact pre-image, LLM-written compensation gets 86–100% of 4-step sagas right across four open models.</p>
 </section>
 
 <section>
