@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AC-Saga: Recoverability-Conditioned Concurrency Control</title>
+<meta name="description" content="AC-Saga: a transactional layer for LLM agents that share state. Lock what you cannot undo; undo the rest deterministically. AgenticOS Workshop @ NeurIPS 2026.">
+<style>
+:root{
+  --bg:#fbfaf8; --fg:#2b2b33; --muted:#6b6b78; --line:#ebe8e3;
+  --lav:#ece6f7; --lav-ink:#6d55a8;
+  --mint:#e1f3e7; --mint-ink:#3f8a5f;
+  --rose:#fbe3e1; --rose-ink:#b9524e;
+  --sky:#e2edf9; --sky-ink:#3f6fa8;
+  --peach:#fcebdc; --peach-ink:#a8653a;
+  --card:#ffffff; --figbg:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17161b; --fg:#ecebf0; --muted:#a3a2b0; --line:#2b2a32;
+    --lav:#2a2538; --lav-ink:#c4b2ee;
+    --mint:#1f2e26; --mint-ink:#8fd3a9;
+    --rose:#35221f; --rose-ink:#f0a19c;
+    --sky:#1f2a38; --sky-ink:#9cc2ee;
+    --peach:#352a20; --peach-ink:#f0bb92;
+    --card:#1e1d23; --figbg:#ffffff;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17161b; --fg:#ecebf0; --muted:#a3a2b0; --line:#2b2a32;
+  --lav:#2a2538; --lav-ink:#c4b2ee;
+  --mint:#1f2e26; --mint-ink:#8fd3a9;
+  --rose:#35221f; --rose-ink:#f0a19c;
+  --sky:#1f2a38; --sky-ink:#9cc2ee;
+  --peach:#352a20; --peach-ink:#f0bb92;
+  --card:#1e1d23; --figbg:#ffffff;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font:17px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:0 16px 80px}
+a{color:inherit}
+
+/* hero */
+.hero{text-align:center;padding:72px 0 40px}
+.pill{display:inline-block;background:var(--lav);color:var(--lav-ink);font-size:13.5px;font-weight:600;
+  padding:5px 14px;border-radius:999px;margin-bottom:22px;letter-spacing:.01em}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.18;margin:0;letter-spacing:-.02em;font-weight:700}
+.sub{font-size:clamp(17px,2.6vw,20px);color:var(--muted);margin:10px 0 34px}
+.authors{display:flex;justify-content:center;gap:44px;flex-wrap:wrap;margin-bottom:6px}
+.author a.name{font-size:18px;font-weight:600;text-decoration:none;border-bottom:1.5px solid var(--lav)}
+.author a.name:hover{border-color:var(--lav-ink)}
+.author .mail{display:block;font-size:14px;color:var(--muted);text-decoration:none;margin-top:2px}
+.affil{color:var(--muted);font-size:15px;margin:10px 0 30px}
+.buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{padding:9px 20px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;
+  background:var(--lav);color:var(--lav-ink)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--fg)}
+
+/* sections */
+section{margin-top:64px}
+h2{font-size:24px;margin:0 0 14px;letter-spacing:-.01em}
+p{margin:0 0 14px}
+.muted{color:var(--muted)}
+.small{font-size:15px}
+.tldr{background:var(--lav);border-radius:16px;padding:22px 26px;font-size:17.5px}
+.tldr strong{color:var(--lav-ink)}
+
+figure{margin:26px 0 0}
+.fig{background:var(--figbg);border-radius:14px;padding:18px;border:1px solid var(--line);overflow-x:auto}
+.fig img{display:block;width:100%;height:auto;min-width:520px}
+figcaption{color:var(--muted);font-size:14.5px;margin-top:10px;line-height:1.55}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:22px 0}
+.card{border-radius:14px;padding:18px 20px}
+.card .k{font-size:24px;font-weight:700;line-height:1.2}
+.card .t{font-weight:600;margin-top:4px}
+.card .d{font-size:14.5px;line-height:1.5;margin-top:4px;opacity:.85}
+.c-mint{background:var(--mint);color:var(--mint-ink)}
+.c-lav{background:var(--lav);color:var(--lav-ink)}
+.c-peach{background:var(--peach);color:var(--peach-ink)}
+.c-rose{background:var(--rose);color:var(--rose-ink)}
+.c-sky{background:var(--sky);color:var(--sky-ink)}
+
+.rule{list-style:none;padding:0;margin:20px 0}
+.rule li{display:flex;gap:14px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line)}
+.rule li:last-child{border-bottom:0}
+.tag{flex:none;font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.03em}
+
+.tablewrap{overflow-x:auto;margin:20px 0 6px}
+table{border-collapse:collapse;width:100%;font-size:15.5px;font-variant-numeric:tabular-nums}
+th,td{padding:10px 12px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--muted);font-weight:600;font-size:14px;border-bottom:1px solid var(--line)}
+tbody tr+tr td{border-top:1px solid var(--line)}
+tr.ours td{background:var(--mint);color:var(--mint-ink);font-weight:700}
+tr.ours td:first-child{border-radius:10px 0 0 10px} tr.ours td:last-child{border-radius:0 10px 10px 0}
+
+ul.plain{padding-left:20px;margin:0} ul.plain li{margin:8px 0}
+code{font:0.88em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.bib{position:relative}
+pre{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;overflow-x:auto;
+  font:13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:0}
+.copy{position:absolute;top:10px;right:10px;font:600 13px/1 -apple-system,Helvetica,Arial,sans-serif;
+  padding:7px 12px;border-radius:999px;border:0;background:var(--lav);color:var(--lav-ink);cursor:pointer}
+footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+
+<header class="hero">
+  <div class="pill">AgenticOS Workshop @ NeurIPS 2026</div>
+  <h1>Recoverability-Conditioned Concurrency Control</h1>
+  <p class="sub">A transactional layer for agents that share state</p>
+  <div class="authors">
+    <div class="author">
+      <a class="name" href="https://www.linkedin.com/in/jadhav-kunal/" target="_blank" rel="noopener">Kunal Jadhav</a>
+      <a class="mail" href="mailto:kjadha12@asu.edu">kjadha12@asu.edu</a>
+    </div>
+    <div class="author">
+      <a class="name" href="https://www.linkedin.com/in/sidessh/" target="_blank" rel="noopener">Siddhesh More</a>
+      <a class="mail" href="mailto:smore123@asu.edu">smore123@asu.edu</a>
+    </div>
+  </div>
+  <p class="affil">Arizona State University</p>
+  <div class="buttons">
+    <a class="btn" href="acsaga_agenticos.pdf">Paper</a>
+    <a class="btn ghost" href="assets/poster.png">Poster</a>
+    <a class="btn ghost" href="#cite">Cite</a>
+  </div>
+</header>
+
+<div class="tldr">
+  When several LLM agents write to one database, an agent rolled back <em>after</em> it already did something irreversible leaves the shared state silently wrong. <strong>AC-Saga</strong> locks exactly the operations that cannot be undone and undoes everything else deterministically, with no LLM in the loop.
+</div>
+
+<section>
+  <h2>The problem</h2>
+  <p>Agents read, think for seconds, then write. If one is rolled back after appending to a ledger, the rollback undoes what it can and leaves the rest. The agent reports success; the data is wrong. We call this a <strong>catastrophe</strong>.</p>
+  <p class="muted">Locking everything (2PL) stalls every other agent while one thinks. Running optimistically (OCC) risks the catastrophe. Learned concurrency control ignores recovery; compensation frameworks ignore concurrency.</p>
+  <figure>
+    <div class="fig"><img src="assets/running_example.svg" alt="Running example: (a) under OCC, agent B's write invalidates agent A, whose abort undoes s1 but leaves s2's ledger row behind; (b) AC-Saga locks s2 and every later step, so B waits and nothing needs undoing."></div>
+    <figcaption>(a) Under OCC, agent A aborts after its ledger append, leaving that row behind. (b) AC-Saga locks the step it cannot undo, and every step after it, so A never aborts once it is exposed.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>The idea</h2>
+  <p>Before each operation, AC-Saga asks how recoverable it would be, not only how contended it is.</p>
+  <div class="cards">
+    <div class="card c-mint"><div class="k">ρ</div><div class="t">Undoable?</div><div class="d">Does the operation have a deterministic inverse?</div></div>
+    <div class="card c-peach"><div class="k">κ</div><div class="t">Undo cost</div><div class="d">How expensive is that inverse?</div></div>
+    <div class="card c-lav"><div class="k">ε</div><div class="t">Exposed?</div><div class="d">Has something irreversible already committed?</div></div>
+  </div>
+  <ul class="rule">
+    <li><span class="tag c-lav">LOCK</span><span>if the operation can't be undone, or the saga is already exposed. This gate is enforced, not learned.</span></li>
+    <li><span class="tag c-mint">LEARN</span><span>otherwise, a small Q-learned policy picks optimistic or locked from contention.</span></li>
+    <li><span class="tag c-sky">UNDO</span><span>on abort, replay logged inverses derived from each statement and its pre-image. If another agent changed the row since, refuse rather than overwrite.</span></li>
+  </ul>
+  <p class="muted small">Result: no abort can happen while a saga is exposed (for conflict-induced aborts, with each lock acquired within its retry budget), so every abort that does happen is cleanly recoverable.</p>
+</section>
+
+<section>
+  <h2>Results</h2>
+  <p class="muted small">Real PostgreSQL · 6 agents · 4-step sagas · 30% irreversible steps · 10 seeds, 95% CI.</p>
+  <div class="cards">
+    <div class="card c-mint"><div class="k">0 / 5,400</div><div class="d">catastrophes for AC-Saga across the full contention sweep</div></div>
+    <div class="card c-rose"><div class="k">10.0%</div><div class="d">catastrophe rate for OCC at high contention</div></div>
+    <div class="card c-sky"><div class="k">0 tokens</div><div class="d">spent on recovery, at ~0 ms; no LLM in the undo path</div></div>
+  </div>
+  <figure>
+    <div class="fig"><img src="assets/catastrophe.svg" alt="Catastrophe rate versus contention: OCC rises to 10%; a recoverability-blind heuristic peaks at 3.1%; AC-Saga stays at 0."></div>
+    <figcaption>Catastrophe rate vs. contention. AC-Saga stays at 0; OCC climbs to 10%; a recoverability-blind heuristic fails at low and mid contention.</figcaption>
+  </figure>
+
+  <div class="tablewrap"><table>
+    <thead><tr><th>End to end</th><th>Correct final state</th><th>Recovery tokens</th><th>Recovery time</th></tr></thead>
+    <tbody>
+      <tr><td>OCC + deterministic undo</td><td>79.7%</td><td>0</td><td>~0 ms</td></tr>
+      <tr><td>OCC + LLM-written undo</td><td>98.4%</td><td>~120</td><td>~1.4 s</td></tr>
+      <tr class="ours"><td>AC-Saga</td><td>100%</td><td>0</td><td>~0 ms</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted small">Even when handed the exact pre-image, LLM-written compensation gets 86–100% of 4-step sagas right across four open models, and fails silently on the rest.</p>
+</section>
+
+<section>
+  <h2>Honest notes</h2>
+  <ul class="plain muted">
+    <li>No throughput or token win when locks are cheap: the benefit is <em>recoverability</em>, not speed. Tail latency rises 27% at high contention.</li>
+    <li>Evaluated on a single-node YCSB-style microbenchmark with single-row operations.</li>
+    <li>When compensation refuses to protect another agent's write, the saga is left partially applied.</li>
+  </ul>
+</section>
+
+<section id="cite">
+  <h2>Cite</h2>
+  <div class="bib">
+    <button class="copy" type="button" onclick="copyBib(this)">Copy</button>
+<pre id="bib">@inproceedings{jadhav2026acsaga,
+  title     = {Recoverability-Conditioned Concurrency Control:
+               A Transactional Layer for Agents That Share State},
+  author    = {Jadhav, Kunal and More, Siddhesh},
+  booktitle = {NeurIPS 2026 Workshop on Co-designing Systems and ML
+               Foundations of an OS Layer for Agentic AI (AgenticOS)},
+  year      = {2026}
+}</pre>
+  </div>
+</section>
+
+<footer>Arizona State University</footer>
+</main>
+<script>
+function copyBib(btn){
+  var t=document.getElementById('bib').innerText;
+  try{navigator.clipboard.writeText(t).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},1500)});}catch(e){}
+}
+</script>
+</body>
+</html>
