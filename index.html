@@ -9,7 +9,7 @@
 <style>
 :root{
   --bg:#fbfaf8; --fg:#2b2b33; --muted:#6b6b78; --line:#ebe8e3;
-  --lav:#ece6f7; --lav-ink:#6d55a8;
+  --acc:#e0f1e4; --acc-ink:#3a7a51;
   --mint:#e1f3e7; --mint-ink:#3f8a5f;
   --rose:#fbe3e1; --rose-ink:#b9524e;
   --sky:#e2edf9; --sky-ink:#3f6fa8;
@@ -26,18 +26,18 @@ a{color:inherit}
 
 /* hero */
 .hero{text-align:center;padding:72px 0 40px}
-.pill{display:inline-block;background:var(--lav);color:var(--lav-ink);font-size:13.5px;font-weight:600;
+.pill{display:inline-block;background:var(--acc);color:var(--acc-ink);font-size:13.5px;font-weight:600;
   padding:5px 14px;border-radius:999px;margin-bottom:22px;letter-spacing:.01em}
 h1{font-size:clamp(28px,5vw,40px);line-height:1.18;margin:0;letter-spacing:-.02em;font-weight:700}
 .sub{font-size:clamp(17px,2.6vw,20px);color:var(--muted);margin:10px 0 34px}
 .authors{display:flex;justify-content:center;gap:44px;flex-wrap:wrap;margin-bottom:6px}
-.author a.name{font-size:18px;font-weight:600;text-decoration:none;border-bottom:1.5px solid var(--lav)}
-.author a.name:hover{border-color:var(--lav-ink)}
+.author a.name{font-size:18px;font-weight:600;text-decoration:none;border-bottom:1.5px solid var(--acc)}
+.author a.name:hover{border-color:var(--acc-ink)}
 .author .mail{display:block;font-size:14px;color:var(--muted);text-decoration:none;margin-top:2px}
 .affil{color:var(--muted);font-size:15px;margin:10px 0 30px}
 .buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .btn{padding:9px 20px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;
-  background:var(--lav);color:var(--lav-ink)}
+  background:var(--acc);color:var(--acc-ink)}
 .btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--fg)}
 
 /* sections */
@@ -46,8 +46,8 @@ h2{font-size:24px;margin:0 0 14px;letter-spacing:-.01em}
 p{margin:0 0 14px}
 .muted{color:var(--muted)}
 .small{font-size:15px}
-.tldr{background:var(--lav);border-radius:16px;padding:22px 26px;font-size:17.5px}
-.tldr strong{color:var(--lav-ink)}
+.tldr{background:var(--acc);border-radius:16px;padding:22px 26px;font-size:17.5px}
+.tldr strong{color:var(--acc-ink)}
 
 figure{margin:26px 0 0}
 .fig{background:var(--figbg);border-radius:14px;padding:18px;border:1px solid var(--line);overflow-x:auto}
@@ -60,7 +60,7 @@ figcaption{color:var(--muted);font-size:14.5px;margin-top:10px;line-height:1.55}
 .card .t{font-weight:600;margin-top:4px}
 .card .d{font-size:14.5px;line-height:1.5;margin-top:4px;opacity:.85}
 .c-mint{background:var(--mint);color:var(--mint-ink)}
-.c-lav{background:var(--lav);color:var(--lav-ink)}
+.c-acc{background:var(--acc);color:var(--acc-ink)}
 .c-peach{background:var(--peach);color:var(--peach-ink)}
 .c-rose{background:var(--rose);color:var(--rose-ink)}
 .c-sky{background:var(--sky);color:var(--sky-ink)}
@@ -85,7 +85,7 @@ code{font:0.88em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 pre{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;overflow-x:auto;
   font:13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:0}
 .copy{position:absolute;top:10px;right:10px;font:600 13px/1 -apple-system,Helvetica,Arial,sans-serif;
-  padding:7px 12px;border-radius:999px;border:0;background:var(--lav);color:var(--lav-ink);cursor:pointer}
+  padding:7px 12px;border-radius:999px;border:0;background:var(--acc);color:var(--acc-ink);cursor:pointer}
 footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;text-align:center}
 </style>
 </head>
@@ -132,14 +132,14 @@ footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--line);color:v
   <h2>The idea</h2>
   <p>Before each operation, AC-Saga asks how recoverable it would be, not only how contended it is.</p>
   <div class="cards">
-    <div class="card c-mint"><div class="k">ρ</div><div class="t">Undoable?</div><div class="d">Does the operation have a deterministic inverse?</div></div>
+    <div class="card c-sky"><div class="k">ρ</div><div class="t">Undoable?</div><div class="d">Does the operation have a deterministic inverse?</div></div>
     <div class="card c-peach"><div class="k">κ</div><div class="t">Undo cost</div><div class="d">How expensive is that inverse?</div></div>
-    <div class="card c-lav"><div class="k">ε</div><div class="t">Exposed?</div><div class="d">Has something irreversible already committed?</div></div>
+    <div class="card c-rose"><div class="k">ε</div><div class="t">Exposed?</div><div class="d">Has something irreversible already committed?</div></div>
   </div>
   <ul class="rule">
-    <li><span class="tag c-lav">LOCK</span><span>if the operation can't be undone, or the saga is already exposed. This gate is enforced, not learned.</span></li>
-    <li><span class="tag c-mint">LEARN</span><span>otherwise, a small Q-learned policy picks optimistic or locked from contention.</span></li>
-    <li><span class="tag c-sky">UNDO</span><span>on abort, replay logged inverses derived from each statement and its pre-image. If another agent changed the row since, refuse rather than overwrite.</span></li>
+    <li><span class="tag c-peach">LOCK</span><span>if the operation can't be undone, or the saga is already exposed. This gate is enforced, not learned.</span></li>
+    <li><span class="tag c-sky">LEARN</span><span>otherwise, a small Q-learned policy picks optimistic or locked from contention.</span></li>
+    <li><span class="tag c-mint">UNDO</span><span>on abort, replay logged inverses derived from each statement and its pre-image. If another agent changed the row since, refuse rather than overwrite.</span></li>
   </ul>
   <p class="muted small">Result: no abort can happen while a saga is exposed (for conflict-induced aborts, with each lock acquired within its retry budget), so every abort that does happen is cleanly recoverable.</p>
 </section>
